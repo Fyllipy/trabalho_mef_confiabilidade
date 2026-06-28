@@ -1,0 +1,15 @@
+Analysis initiated from SIMULIA established products
+Abaqus JOB NonlinearCylinder
+Abaqus Learning Edition 2025
+Begin Analysis Input File Processor
+28/06/2026 02:27:55
+Run pre.exe
+28/06/2026 02:27:56
+Abaqus Error: Analysis Input File Processor exited with an error - Please see the 
+NonlinearCylinder.dat file for possible error messages if the file exists.
+Begin SIM Wrap-up
+28/06/2026 02:27:56
+Run SMASimUtility.exe
+28/06/2026 02:27:56
+End SIM Wrap-up
+Abaqus/Analysis exited with errors

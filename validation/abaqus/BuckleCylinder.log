@@ -1,0 +1,19 @@
+Analysis initiated from SIMULIA established products
+Abaqus JOB BuckleCylinder
+Abaqus Learning Edition 2025
+Begin Analysis Input File Processor
+28/06/2026 02:08:41
+Run pre.exe
+28/06/2026 02:08:42
+End Analysis Input File Processor
+Begin Abaqus/Standard Analysis
+28/06/2026 02:08:42
+Run standard.exe
+28/06/2026 02:08:44
+End Abaqus/Standard Analysis
+Begin SIM Wrap-up
+28/06/2026 02:08:44
+Run SMASimUtility.exe
+28/06/2026 02:08:44
+End SIM Wrap-up
+Abaqus JOB BuckleCylinder COMPLETED

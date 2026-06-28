@@ -1,0 +1,3 @@
+sys.argv: ['c:\\SIMULIA\\CAE\\2025LE\\win_b64\\code\\bin\\LE\\ABQcaeK.exe', '-cae', '-noGUI', 'validation\\abaqus\\test_env.py', '-tmpdir', 'C:\\Users\\JOO~1\\AppData\\Local\\Temp', '-lmlog', 'ON']
+__file__ is not defined
+Resolved dir: C:\Users\João\Desktop\Trabalho final

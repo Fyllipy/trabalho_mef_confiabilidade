@@ -1,0 +1,91 @@
+1
+
+   Abaqus Learning Edition 2025                                  Date 28-jun-2026   Time 02:27:56
+   
+
+
+
+     PROCESSING PART, INSTANCE, AND ASSEMBLY INFORMATION
+   *******************************************************
+
+
+     END PROCESSING PART, INSTANCE, AND ASSEMBLY INFORMATION
+   ***********************************************************
+
+
+
+
+     OPTIONS BEING PROCESSED
+   ***************************
+
+
+  *heading
+  *material, name=STEEL
+  *elastic
+  *shellsection, elset=ASSEMBLY_CYLINDER-1__PICKEDSET2, material=STEE
+  *shellsection, elset=ASSEMBLY_CYLINDER-1__PICKEDSET2, material=STEE
+  *surface, type=ELEMENT, name=ASSEMBLY_TOP
+  *surface, type=ELEMENT, name=ASSEMBLY_TOP
+  *boundary
+  *boundary
+  *surface, type=ELEMENT, name=ASSEMBLY_TOP
+  *output, field, variable=PRESELECT
+  *output, history, variable=PRESELECT
+  *output, field, variable=PRESELECT
+  *output, history, variable=PRESELECT
+  *output, field, variable=PRESELECT
+  *output, history, variable=PRESELECT
+  *step, name=Step-1, nlgeom=YES
+  *step, name=Step-1, nlgeom=YES
+  *output, field, variable=PRESELECT
+  *output, history, variable=PRESELECT
+  *step, name=Step-1, nlgeom=YES
+  *step, name=Step-1, nlgeom=YES
+  *static
+  *dsload
+
+ ***ERROR: SURFACE ASSEMBLY_TOP INCLUDES EDGES. EXCEPT FOR SHELL EDGE LOADING, 
+           SURFACES WHICH INCLUDE EDGES CANNOT BE USED WITH *DSLOAD, *DSFLUX, 
+           *SFILM, *SRADIATE, *DSFLOW, *SFLOW, *DSECHARGE, *DSECURRENT, 
+           *SIMPEDANCE OR *INCIDENT WAVE.
+ ***NOTE: DUE TO AN INPUT ERROR THE ANALYSIS PRE-PROCESSOR HAS BEEN UNABLE TO 
+          INTERPRET SOME DATA.  SUBSEQUENT ERRORS MAY BE CAUSED BY THIS OMISSION
+  *output, field, variable=PRESELECT
+  *output, history, variable=PRESELECT
+  *endstep
+  *boundary
+  *step, name=Step-1, nlgeom=YES
+  *static
+  *endstep
+
+
+
+                            P R O B L E M   S I Z E
+
+
+          NUMBER OF ELEMENTS IS                                   228
+          NUMBER OF NODES IS                                      240
+          NUMBER OF NODES DEFINED BY THE USER                     240
+          TOTAL NUMBER OF VARIABLES IN THE MODEL                 1440
+          (DEGREES OF FREEDOM PLUS MAX NO. OF ANY LAGRANGE MULTIPLIER
+           VARIABLES. INCLUDE *PRINT,SOLVE=YES TO GET THE ACTUAL NUMBER.)
+
+
+
+
+
+          THE PROGRAM HAS DISCOVERED     1 FATAL ERRORS
+
+               ** EXECUTION IS TERMINATED **
+
+
+
+                              END OF USER INPUT PROCESSING
+
+
+
+     JOB TIME SUMMARY
+       USER TIME (SEC)      =     0.10    
+       SYSTEM TIME (SEC)    =     0.10    
+       TOTAL CPU TIME (SEC) =     0.20    
+       WALLCLOCK TIME (SEC) =            0

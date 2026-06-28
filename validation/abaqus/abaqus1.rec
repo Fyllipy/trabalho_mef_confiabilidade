@@ -1,0 +1,50 @@
+# -*- coding: mbcs -*-
+from mesh import *
+mdb.models['Model-1'].ConstrainedSketch(name='__profile__', sheetSize=1000.0)
+mdb.models['Model-1'].sketches['__profile__'].CircleByCenterPerimeter(center=(
+    0.0, 0.0), point1=(100.0, 0.0))
+mdb.models['Model-1'].Part(dimensionality=THREE_D, name='Cylinder', type=
+    DEFORMABLE_BODY)
+mdb.models['Model-1'].parts['Cylinder'].BaseShellExtrude(depth=500.0, sketch=
+    mdb.models['Model-1'].sketches['__profile__'])
+del mdb.models['Model-1'].sketches['__profile__']
+mdb.models['Model-1'].Material(name='Steel')
+mdb.models['Model-1'].materials['Steel'].Elastic(table=((200000.0, 0.3), ))
+mdb.models['Model-1'].HomogeneousShellSection(idealization=NO_IDEALIZATION, 
+    integrationRule=SIMPSON, material='Steel', name='Section-1', numIntPts=5, 
+    poissonDefinition=DEFAULT, preIntegrate=OFF, temperature=GRADIENT, 
+    thickness=2.0, thicknessField='', thicknessModulus=None, thicknessType=
+    UNIFORM, useDensity=OFF)
+mdb.models['Model-1'].parts['Cylinder'].SectionAssignment(offset=0.0, 
+    offsetField='', offsetType=MIDDLE_SURFACE, region=Region(
+    faces=mdb.models['Model-1'].parts['Cylinder'].faces.getSequenceFromMask(
+    mask=('[#1 ]', ), )), sectionName='Section-1', thicknessAssignment=
+    FROM_SECTION)
+mdb.models['Model-1'].rootAssembly.DatumCsysByDefault(CARTESIAN)
+mdb.models['Model-1'].rootAssembly.Instance(dependent=ON, name='Cylinder-1', 
+    part=mdb.models['Model-1'].parts['Cylinder'])
+mdb.models['Model-1'].StaticStep(name='Step-1', nlgeom=OFF, previous='Initial')
+mdb.models['Model-1'].rootAssembly.Set(edges=
+    mdb.models['Model-1'].rootAssembly.instances['Cylinder-1'].edges.getSequenceFromMask(
+    mask=('[#2 ]', ), ), name='Bottom')
+mdb.models['Model-1'].EncastreBC(createStepName='Initial', localCsys=None, 
+    name='BC-1', region=mdb.models['Model-1'].rootAssembly.sets['Bottom'])
+mdb.models['Model-1'].rootAssembly.Surface(name='Top', side1Edges=
+    mdb.models['Model-1'].rootAssembly.instances['Cylinder-1'].edges.getSequenceFromMask(
+    mask=('[#1 ]', ), ))
+mdb.models['Model-1'].ShellEdgeLoad(createStepName='Step-1', distributionType=
+    UNIFORM, field='', localCsys=None, magnitude=-1.59154943091895, name=
+    'Load-1', region=mdb.models['Model-1'].rootAssembly.surfaces['Top'])
+mdb.models['Model-1'].parts['Cylinder'].seedPart(deviationFactor=0.1, 
+    minSizeFactor=0.1, size=12.5)
+mdb.models['Model-1'].parts['Cylinder'].setElementType(elemTypes=(ElemType(
+    elemCode=S4, elemLibrary=STANDARD), ), regions=(
+    mdb.models['Model-1'].parts['Cylinder'].faces, ))
+mdb.models['Model-1'].parts['Cylinder'].generateMesh()
+mdb.Job(description='Teste Static General', model='Model-1', name=
+    'StaticCylinder')
+mdb.jobs['StaticCylinder'].submit(consistencyChecking=OFF)
+from job import *
+#* Learning Edition is restricted to 1,000 nodes
+#* Learning Edition is restricted to 1,000 nodes
+#* Learning Edition is restricted to 1,000 nodes
