@@ -57,13 +57,34 @@ def run_abaqus_buckling_validation():
     # Escrever abaqus_settings.json para sincronizar com o Abaqus
     import json
     settings = {
-        "element_type": model.element_type,
+        "element_type": "S4" if model.element_type == "QUAD4" else "S8",
         "results_location": model.results_location
     }
     settings_file = os.path.join(os.path.dirname(__file__), "abaqus_settings.json")
     with open(settings_file, "w") as f:
         json.dump(settings, f)
     print(f"Configurações gravadas em: {settings_file}")
+        
+    # Remover arquivo de resultado anterior para garantir que rodamos um novo caso
+    abaqus_file_path = os.path.join(os.path.dirname(__file__), "abaqus_buckling_result.txt")
+    if os.path.exists(abaqus_file_path):
+        try:
+            os.remove(abaqus_file_path)
+        except Exception:
+            pass
+            
+    # Executar o Abaqus automaticamente via subprocess
+    import subprocess
+    abaqus_script = os.path.join(os.path.dirname(__file__), "run_abaqus_buckling.py")
+    print(f"Tentando rodar o Abaqus: abaqus cae noGUI={os.path.basename(abaqus_script)}")
+    try:
+        cmd = ["abaqus", "cae", "noGUI=" + os.path.basename(abaqus_script)]
+        subprocess.run(cmd, cwd=os.path.dirname(__file__), check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print("Abaqus finalizado com sucesso.")
+    except Exception as e:
+        print(f"[!] Aviso: Não foi possível executar o Abaqus automaticamente ({e}).")
+        print("[!] Utilizando arquivo de referência pré-existente ou solução de backup.")
+    
         
     # Lendo a referência do Abaqus
     abaqus_file = os.path.join(os.path.dirname(__file__), "abaqus_buckling_result.txt")

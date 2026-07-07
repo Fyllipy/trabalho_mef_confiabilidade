@@ -13,13 +13,13 @@ import os
 import sys
 
 def get_element_shape_functions(elem_type, xi, eta):
-    if elem_type == "QUAD4":
+    if elem_type == "S4":
         N1 = 0.25 * (1.0 - xi) * (1.0 - eta)
         N2 = 0.25 * (1.0 + xi) * (1.0 - eta)
         N3 = 0.25 * (1.0 + xi) * (1.0 + eta)
         N4 = 0.25 * (1.0 - xi) * (1.0 + eta)
         return [N1, N2, N3, N4]
-    elif elem_type == "QUAD8":
+    elif elem_type == "S8":
         N = [0.0] * 8
         N[0] = -0.25 * (1.0 - xi) * (1.0 - eta) * (1.0 + xi + eta)
         N[1] = -0.25 * (1.0 + xi) * (1.0 - eta) * (1.0 - xi + eta)
@@ -33,10 +33,10 @@ def get_element_shape_functions(elem_type, xi, eta):
     return []
 
 def get_gp_coords(elem_type):
-    if elem_type == "QUAD4":
+    if elem_type == "S4":
         p = 1.0 / math.sqrt(3.0)
         return [(-p, -p), (p, -p), (p, p), (-p, p)]
-    elif elem_type == "QUAD8":
+    elif elem_type == "S8":
         p = math.sqrt(3.0 / 5.0)
         pts_1d = [-p, 0.0, p]
         gps = []
@@ -48,7 +48,7 @@ def get_gp_coords(elem_type):
 
 def create_and_run():
     # 0. Carregar Configurações
-    element_type = "QUAD4"
+    element_type = "S4"
     results_location = "nodal"
     
     settings_file = 'abaqus_settings.json'
@@ -63,7 +63,7 @@ def create_and_run():
         try:
             with open(settings_file, 'r') as f:
                 settings = json.load(f)
-                element_type = settings.get("element_type", "QUAD4")
+                element_type = settings.get("element_type", "S4")
                 results_location = settings.get("results_location", "nodal")
         except:
             pass
@@ -130,7 +130,7 @@ def create_and_run():
     
     # Malha
     p.seedPart(size=52.3, deviationFactor=0.1, minSizeFactor=0.1)
-    if element_type == "QUAD8":
+    if element_type == "S8":
         elemType = mesh.ElemType(elemCode=S8, elemLibrary=STANDARD)
     else:
         elemType = mesh.ElemType(elemCode=S4, elemLibrary=STANDARD)

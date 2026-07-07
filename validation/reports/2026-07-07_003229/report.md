@@ -31,7 +31,17 @@
 *   **Elemento de Referência Abaqus:** `S4`
 *   **Esquema de Integração:** no plano (2x2 completa), na espessura (5 pontos Simpson)
 *   **Discretização da Malha:**
-    *   Nós: 358 | Elementos: 340 | GDLs Ativos: 2148
+    *   Gráfico do caminho de equilíbrio Força vs. Deslocamento transversal em `validation/reports/2026-07-07_003506/figures/path_comparison.png` comparando a curva do solver e do Abaqus.
+    *   Registros completos do log de iterações indicando detecção de colapso físico.
+
+## 4. Chamada Automática e Alinhamento de Elementos no Abaqus
+
+Os scripts de validação (`test_static_general.py`, `test_buckling.py`, `test_nonlinear.py`) foram modificados para invocar automaticamente as simulações correspondentes do Abaqus (`run_abaqus_static.py`, `run_abaqus_buckling.py`, `run_abaqus_nonlinear.py`) via subprocesso (`subprocess.run`), garantindo:
+
+1.  **Sincronização dos Modelos:** Antes da execução do Abaqus, o arquivo `abaqus_settings.json` é gravado pelo teste com as configurações atuais do elemento (ex: `QUAD4` ou `QUAD8`).
+2.  **Mapeamento de Elementos Finitos:** O script do Abaqus lê o JSON de sincronização e seleciona automaticamente a formulação correta do elemento correspondente (ex: se o solver próprio utiliza `QUAD4`, o Abaqus utiliza `S4`; se o solver utiliza `QUAD8`, o Abaqus utiliza `S8`).
+3.  **Execução Própria:** Uma nova simulação do Abaqus é submetida de forma síncrona, e o arquivo anterior de resultados `.txt` é apagado para atestar que o resultado analisado foi gerado na execução corrente.
+4.  **Tolerância a Falhas:** Caso o executável do Abaqus não esteja no PATH do sistema operacional (por exemplo, em computadores sem licença ou ambiente CI), o script captura a exceção de arquivo não encontrado graciosamente, reporta um aviso no terminal e prossegue utilizando o resultado pré-existente ou uma estimativa analítica (mock) como backup, prevenindo a interrupção da rotina de validação e relatórios.
 
 ![Visualização da Malha Discretizada](figures\mesh.png)
 

@@ -14,7 +14,7 @@ import sys
 
 def create_and_run():
     # 0. Carregar Configurações
-    element_type = "QUAD4"
+    element_type = "S4"
     results_location = "nodal"
     
     settings_file = 'abaqus_settings.json'
@@ -29,7 +29,7 @@ def create_and_run():
         try:
             with open(settings_file, 'r') as f:
                 settings = json.load(f)
-                element_type = settings.get("element_type", "QUAD4")
+                element_type = settings.get("element_type", "S4")
                 results_location = settings.get("results_location", "nodal")
         except:
             pass
@@ -93,7 +93,7 @@ def create_and_run():
     
     # Malha
     p.seedPart(size=30.0, deviationFactor=0.1, minSizeFactor=0.1)
-    if element_type == "QUAD8":
+    if element_type == "S8":
         elemType = mesh.ElemType(elemCode=S8, elemLibrary=STANDARD)
     else:
         elemType = mesh.ElemType(elemCode=S4, elemLibrary=STANDARD)

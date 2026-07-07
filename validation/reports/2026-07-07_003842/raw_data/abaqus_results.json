@@ -1,0 +1,10 @@
+{
+  "results": {
+    "displacements": -0.0019894367886486917,
+    "stresses": null,
+    "critical_load": null,
+    "eigenvalues": null,
+    "load_displacement_curve": {}
+  },
+  "abaqus_time": null
+}
