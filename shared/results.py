@@ -12,12 +12,10 @@ class ShellResults:
     # --- Resultados Globais / Gerais ---
     vtk_file: Optional[str] = None
     
-    # --- Resultados de Análise Estática Linear ---
-    displacements: Optional[Any] = None
-    rotations: Optional[Any] = None
-    strains: Optional[Any] = None
-    stresses: Optional[Any] = None
-    raw_dofs: Optional[Any] = None
+    # --- Metadados e Estrutura Geral ---
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    data: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    _fallback_data: Dict[str, Any] = field(default_factory=dict, repr=False)
     
     # --- Resultados de Análise de Flambagem Linear (Eigenvalue) ---
     critical_load: Optional[float] = None
@@ -28,6 +26,59 @@ class ShellResults:
     iterations: Optional[int] = None
     converged: Optional[bool] = None
     load_displacement_curve: Optional[Dict[str, Any]] = field(default_factory=dict)
+
+    # --- Propriedades de Compatibilidade ---
+    @property
+    def displacements(self) -> Optional[Any]:
+        loc = self.metadata.get("results_location", "nodal")
+        if loc in self.data and "displacements" in self.data[loc]:
+            return self.data[loc]["displacements"]
+        return self._fallback_data.get("displacements")
+
+    @displacements.setter
+    def displacements(self, val: Any):
+        self._fallback_data["displacements"] = val
+
+    @property
+    def rotations(self) -> Optional[Any]:
+        loc = self.metadata.get("results_location", "nodal")
+        if loc in self.data and "rotations" in self.data[loc]:
+            return self.data[loc]["rotations"]
+        return self._fallback_data.get("rotations")
+
+    @rotations.setter
+    def rotations(self, val: Any):
+        self._fallback_data["rotations"] = val
+
+    @property
+    def strains(self) -> Optional[Any]:
+        loc = self.metadata.get("results_location", "nodal")
+        if loc in self.data and "strains" in self.data[loc]:
+            return self.data[loc]["strains"]
+        return self._fallback_data.get("strains")
+
+    @strains.setter
+    def strains(self, val: Any):
+        self._fallback_data["strains"] = val
+
+    @property
+    def stresses(self) -> Optional[Any]:
+        loc = self.metadata.get("results_location", "nodal")
+        if loc in self.data and "stresses" in self.data[loc]:
+            return self.data[loc]["stresses"]
+        return self._fallback_data.get("stresses")
+
+    @stresses.setter
+    def stresses(self, val: Any):
+        self._fallback_data["stresses"] = val
+
+    @property
+    def raw_dofs(self) -> Optional[Any]:
+        return self._fallback_data.get("raw_dofs")
+
+    @raw_dofs.setter
+    def raw_dofs(self, val: Any):
+        self._fallback_data["raw_dofs"] = val
     
     def __repr__(self) -> str:
         """Representação amigável dos resultados presentes."""

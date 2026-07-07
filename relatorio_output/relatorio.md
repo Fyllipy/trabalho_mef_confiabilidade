@@ -5,13 +5,13 @@
 
 **Metodologia**: Acoplamento de modelagem MEF paramétrica, Design of Experiments (CCD) para geração de base de dados, construção de Metamodelo (RSM) e solução probabilística via FORM com validação por Simulação de Monte Carlo.
 
-**Principais Resultados**: A estrutura apresentou Carga Crítica média na ordem de 1.30e+06 N. A superfície de resposta obteve aderência de R² = 1.0000. O índice de confiabilidade estimado foi β = 0.84, correspondendo a uma probabilidade de falha Pf = 2.01e-01.
+**Principais Resultados**: A estrutura apresentou Carga Crítica média na ordem de 1.72e+06 N. A superfície de resposta obteve aderência de R² = 1.0000. O índice de confiabilidade estimado foi β = 2.42, correspondendo a uma probabilidade de falha Pf = 7.85e-03.
 
 **Conclusões**: A metodologia RSM-FORM mostrou-se extremamente eficiente na redução do custo computacional das análises de confiabilidade mantendo altíssima precisão quando comparada ao método de Monte Carlo.
 
 ## 1. Identificação do estudo
 - **Nome do caso**: Confiabilidade de Casca Cilíndrica sob Flambagem
-- **Data e hora**: 2026-06-28 03:55:52
+- **Data e hora**: 2026-07-07 00:21:48
 - **Versão**: 1.0.0
 
 ## 2. Descrição do modelo estrutural
@@ -84,7 +84,7 @@ $P_f \approx \frac{N_f}{N}$
 
 | Métrica | Valor |
 |---|---|
-| Carga Crítica (N) | 1.4231e+06 |
+| Carga Crítica (N) | 1.8887e+06 |
 | Convergência | Sucesso |
 | Tempo (s) | 0.15 |
 
@@ -106,22 +106,22 @@ $P_f \approx \frac{N_f}{N}$
 
 | t (mm) | A (mm) | Pcr (N) |
 |---|---|---|
-| 1.8000 | 0.4000 | 1.1745e+06 |
-| 1.8000 | 0.6000 | 1.1745e+06 |
-| 2.0000 | 0.4000 | 1.4231e+06 |
-| 2.0000 | 0.6000 | 1.4231e+06 |
-| 2.0000 | 0.5000 | 1.4231e+06 |
-| 1.8000 | 0.5000 | 1.1745e+06 |
-| 1.9000 | 0.6000 | 1.2968e+06 |
-| 1.9000 | 0.4000 | 1.2968e+06 |
-| 1.9000 | 0.5000 | 1.2968e+06 |
+| 1.8000 | 0.4000 | 1.5580e+06 |
+| 1.8000 | 0.6000 | 1.5580e+06 |
+| 2.0000 | 0.4000 | 1.8887e+06 |
+| 2.0000 | 0.6000 | 1.8887e+06 |
+| 2.0000 | 0.5000 | 1.8887e+06 |
+| 1.8000 | 0.5000 | 1.5580e+06 |
+| 1.9000 | 0.6000 | 1.7206e+06 |
+| 1.9000 | 0.4000 | 1.7206e+06 |
+| 1.9000 | 0.5000 | 1.7206e+06 |
 
 ## 6. Qualidade da Superfície de Resposta
 **Tabela 6: Validação Hold-Out do Modelo Matemático (RSM)**
 
 | Tipo de Superfície | R² | RMSE (N) | Erro Médio Relativo (%) |
 |---|---|---|---|
-| Quadrática Completa | 1.000000 | 5.9798e+00 | 0.0003 |
+| Quadrática Completa | 1.000000 | 2.7696e+01 | 0.0013 |
 
 ![Figura 3: Superfície de Resposta 3D](fig_rsm_3d.png)
 
@@ -132,7 +132,7 @@ $P_f \approx \frac{N_f}{N}$
 
 | Índice Beta (β) | Probabilidade de Falha (Pf) | Iterações |
 |---|---|---|
-| 0.8375 | 2.0114e-01 | 3 |
+| 2.4160 | 7.8455e-03 | 3 |
 
 ![Figura 4: Convergência do FORM](fig_convergencia_form.png)
 
@@ -143,9 +143,9 @@ $P_f \approx \frac{N_f}{N}$
 
 | Variável | Valor Médio | Reduzida (U*) | MPP (X*) | Importância ($\alpha^2$) |
 |---|---|---|---|---|
-| t | 1.9000e+00 | -0.4375 | 1.8562e+00 | 0.2729 |
+| t | 1.9000e+00 | -1.4926 | 1.7507e+00 | 0.3816 |
 | A | 5.0000e-01 | -0.0000 | 4.9029e-01 | 0.0000 |
-| P | 1.1000e+06 | 0.7142 | 1.2428e+06 | 0.7271 |
+| P | 1.1000e+06 | 1.8998 | 1.4800e+06 | 0.6184 |
 
 ![Figura 5: Fatores de Importância](fig_importancia.png)
 
@@ -161,8 +161,8 @@ $P_f \approx \frac{N_f}{N}$
 Comentários Técnicos Automáticos:
 
 O ajuste da Superfície de Resposta (RSM) apresentou altíssima aderência ($R^2 > 0.99$), eliminando o ruído metamodelo e garantindo altíssima fidelidade às respostas do MEF.
-O índice de Confiabilidade $\beta = 0.84$ reflete a distância geométrica do hiperplano de falha até a origem no espaço $U$. Esta estrutura é classificada como **Alto Risco** ($\beta < 1$), apresentando probabilidade de falha inaceitável. O colapso é iminente sob as cargas operacionais projetadas.
-**Análise de Influência Direta:** A variável `P` dominou a variância de falha da estrutura ($\alpha^2 \approx 72.7\%$). A demanda estocástica ditou a incerteza do problema. Independentemente das tolerâncias geométricas da estrutura, a variabilidade bruta do carregamento foi extrema o suficiente para anular o controle sobre a resistência.
+O índice de Confiabilidade $\beta = 2.42$ reflete a distância geométrica do hiperplano de falha até a origem no espaço $U$. Esta estrutura é classificada como **Segurança Aceitável** ($2 \le \beta < 3$). Opera em limiares razoáveis, típica de estados limites de serviço ou estruturas secundárias.
+**Análise de Influência Direta:** A variável `P` dominou a variância de falha da estrutura ($\alpha^2 \approx 61.8\%$). A demanda estocástica ditou a incerteza do problema. Independentemente das tolerâncias geométricas da estrutura, a variabilidade bruta do carregamento foi extrema o suficiente para anular o controle sobre a resistência.
 
 ## 15. Validação Física dos Resultados
 ✔ O índice Beta calculado é positivo, compatível com médias de capacidade superiores à demanda.
@@ -191,20 +191,20 @@ O índice de Confiabilidade $\beta = 0.84$ reflete a distância geométrica do h
 
 | Método | Amostras Numéricas | Probabilidade de Falha (Pf) | Índice $\beta$ Eq. | Erro Relativo Pf (%) |
 |---|---|---|---|---|
-| **FORM** | O(10) (Iterativo) | 2.0114e-01 | 0.8375 | - |
-| **Monte Carlo** | 1000000 | 1.9959e-01 | 0.8431 | 0.78 |
+| **FORM** | O(10) (Iterativo) | 7.8455e-03 | 2.4160 | - |
+| **Monte Carlo** | 1000000 | 7.7610e-03 | 2.4200 | 1.09 |
 
 ## 18. Desempenho Computacional
 **Tabela 11: Profiling de Execução**
 
 | Etapa | Tempo (s) |
 |---|---|
-| DOE (Amostragem) | 0.0001 |
-| MEF (Soluções de Eigenbuckling) | 6.4835 |
+| DOE (Amostragem) | 0.0002 |
+| MEF (Soluções de Eigenbuckling) | 10.2864 |
 | RSM (Treinamento OLS) | 0.0002 |
-| FORM (Otimização HLRF) | 0.0037 |
-| Monte Carlo (1M Amostras) | 0.2130 |
-| Tempo Total | 15.4910 |
+| FORM (Otimização HLRF) | 0.0083 |
+| Monte Carlo (1M Amostras) | 0.1866 |
+| Tempo Total | 21.6522 |
 
 ## 19. Considerações Finais
 - A cadeia de avaliação estocástica automatizada (Python + MEF + Confiabilidade) demonstrou ser uma ferramenta altamente eficiente para pesquisa em estabilidade.

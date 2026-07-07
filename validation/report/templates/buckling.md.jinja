@@ -1,0 +1,25 @@
+{% extends "base_report.md.jinja" %}
+
+{% block results_section %}
+## 5. Resultados de Flambagem Linear (Autovalores)
+Comparações dos multiplicadores de carga crítica ($\lambda_{cr}$) e modos correspondentes.
+
+*   **Carga Crítica MEF Próprio:** {{ critical_load_mef | default("N/A", true) }}
+*   **Carga Crítica Abaqus/Referência:** {{ critical_load_ref | default("N/A", true) }}
+*   **Erro Relativo de Flambagem:** {{ buckling_error_percent | default("N/A", true) }} %
+
+### Tabela de Modos de Flambagem (Autovalores Comparados)
+{{ buckling_table_markdown }}
+
+## 6. Modos de Flambagem (Autovetores)
+Comparação dos modos geométricos (formas de flambagem) extraídos.
+
+{% if mode_comparison_figure %}
+![Modo de Flambagem: Solver vs Abaqus]({{ mode_comparison_figure }})
+{% endif %}
+
+## 7. Estatísticas de Validação de Campo do Modo
+Métricas de correlação espacial e erros para o autovetor do primeiro modo de flambagem.
+
+{{ error_metrics_table_markdown }}
+{% endblock %}

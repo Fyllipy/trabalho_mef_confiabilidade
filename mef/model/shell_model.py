@@ -45,6 +45,7 @@ class ShellModel:
 
     # --- 9. Configurações de Análise e Solucionador ---
     analysis_type: str = "linear_static" # linear_static, linear_buckling, nonlinear
+    results_location: str = "nodal"  # "nodal" ou "gauss"
     solver_options: Dict[str, Any] = field(default_factory=dict)
     # Ex: {"tolerance": 1e-6, "max_iterations": 50, "load_steps": 10}
 

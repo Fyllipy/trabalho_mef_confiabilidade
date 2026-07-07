@@ -1,0 +1,55 @@
+# Relatório de Validação MEF vs. Abaqus: {{ test_name }}
+
+## 1. Identificação e Reprodutibilidade
+*   **Caso de Teste:** {{ test_description }}
+*   **Data/Hora:** {{ timestamp }}
+*   **Operador:** {{ operator }}
+*   **Commit Git:** `{{ git_commit_hash_short }}` (Branch: `{{ git_branch }}` | Status: `{{ git_status }}`)
+*   **Ambiente de Software:**
+    *   **Python:** {{ python_version }}
+    *   **OS:** {{ os }}
+    *   **Bibliotecas:** {% for lib, ver in library_versions.items() %}{{ lib }} ({{ ver }}){% if not loop.last %}, {% endif %}{% endfor %}
+*   **Ambiente de Hardware:**
+    *   **CPU:** {{ cpu }}
+    *   **RAM:** {{ ram }}
+
+## 2. Resumo Executivo
+{{ executive_summary }}
+
+## 3. Descrição do Problema e Geometria
+*   **Tipo Geométrico:** {{ geometry_type }}
+*   **Parâmetros Dimensionais:**
+    {% for param, val in geometry_params.items() -%}
+    *   {{ param }}: {{ val }}
+    {% endfor %}
+*   **Propriedades do Material:**
+    {% for param, val in material_params.items() -%}
+    *   {{ param }}: {{ val }}
+    {% endfor %}
+
+{% if boundary_conditions_figure %}
+![Esquema da Geometria e Condições de Contorno]({{ boundary_conditions_figure }})
+{% endif %}
+
+## 4. Formulação Numérica e Discretização
+*   **Elemento MEF Próprio:** `{{ element_type }}`
+*   **Elemento de Referência Abaqus:** `{{ abaqus_element_type }}`
+*   **Esquema de Integração:** no plano ({{ plan_integration }}), na espessura ({{ thickness_integration }})
+*   **Discretização da Malha:**
+    *   Nós: {{ num_nodes }} | Elementos: {{ num_elements }} | GDLs Ativos: {{ num_dofs }}
+
+{% if mesh_figure %}
+![Visualização da Malha Discretizada]({{ mesh_figure }})
+{% endif %}
+
+{% block results_section %}
+{# Specific result details go here #}
+{% endblock %}
+
+## 8. Desempenho Computacional e Recursos
+*   **Tempo Total do Solver MEF:** {{ solver_time | default("N/A", true) }} s
+*   **Tempo de Execução do Abaqus:** {{ abaqus_time | default("N/A", true) }} s
+*   **Uso de Memória Estimado:** {{ solver_memory | default("N/A", true) }} MB
+
+## 9. Discussão Científica e Conclusões
+{{ discussion }}

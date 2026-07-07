@@ -1,0 +1,28 @@
+{% extends "base_report.md.jinja" %}
+
+{% block results_section %}
+## 5. Resultados do Campo de Deslocamentos
+Comparações dos campos de deslocamento locais e globais.
+
+{% if displacement_comparison_figure %}
+![Campos de Deslocamento: Solver vs Abaqus]({{ displacement_comparison_figure }})
+{% endif %}
+
+### Tabela de Deslocamentos Nodais de Interesse (Comparação Local)
+{{ displacement_table_markdown }}
+
+## 6. Resultados do Campo de Tensões
+Comparações das tensões obtidas.
+
+{% if stress_comparison_figure %}
+![Campos de Tensão: Solver vs Abaqus]({{ stress_comparison_figure }})
+{% endif %}
+
+### Tabela de Tensões (Comparação Local)
+{{ stress_table_markdown }}
+
+## 7. Estatísticas de Validação e Erro Global
+Métricas consolidadas de discrepância espacial calculadas em toda a malha.
+
+{{ error_metrics_table_markdown }}
+{% endblock %}

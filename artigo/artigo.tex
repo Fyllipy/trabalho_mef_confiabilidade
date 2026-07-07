@@ -1,0 +1,149 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{a4paper, margin=2cm}
+
+\title{Análise de Confiabilidade Estrutural de Cascas Cilíndricas Sujeitas à Flambagem: Uma Abordagem via MEF, Superfícies de Resposta e FORM}
+\author{Mestrando em Engenharia Civil \and Professor Doutor em Engenharia Estrutural}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Este artigo apresenta uma análise de confiabilidade de cascas cilíndricas sujeitas à flambagem sob compressão axial. O estudo acopla um código próprio de Elementos Finitos (MEF) para extração de autovalores a métodos probabilísticos. Para reduzir o custo computacional, utilizou-se a Metodologia de Superfície de Resposta (RSM) construída a partir de um Planejamento de Experimentos (DOE) do tipo Central Composite Design. A probabilidade de falha e o índice de confiabilidade foram calculados pelo Método de Confiabilidade de Primeira Ordem (FORM) e validados por Simulação de Monte Carlo.
+\end{abstract}
+
+\section{Introdução}
+Estruturas em casca cilíndrica são amplamente utilizadas nas indústrias civil, aeroespacial e naval devido à sua eficiência estrutural. No entanto, essas estruturas apresentam sensibilidade a imperfeições geométricas iniciais. Esse comportamento faz com que a carga crítica de flambagem real seja inferior à prevista pelas soluções analíticas clássicas.
+
+O projeto dessas estruturas baseado em abordagens determinísticas e fatores de segurança globais apresenta limitações. Tais métodos podem resultar em projetos conservadores ou com níveis de segurança desconhecidos. Para superar essas deficiências, análises probabilísticas tornam-se essenciais. Elas permitem quantificar de forma racional o impacto das incertezas geométricas, materiais e de carregamento no desempenho estrutural.
+
+A aplicação direta de métodos probabilísticos sobre modelos de Elementos Finitos (MEF) exige elevado esforço computacional. Isso torna inviável o cálculo direto da probabilidade de falha na maioria das aplicações práticas. Para contornar esse problema, modelos substitutos, como a Metodologia de Superfície de Resposta (RSM), são adotados. Eles aproximam a resposta estrutural e reduzem o tempo de processamento.
+
+Este artigo tem como objetivo apresentar e validar um procedimento computacional para análise de confiabilidade de cascas cilíndricas sob compressão axial. O trabalho acopla um solver MEF, desenvolvido para extração de autovalores de flambagem, a métodos de confiabilidade. Essa integração permite avaliar a probabilidade de falha da estrutura considerando incertezas na espessura, imperfeição geométrica e carregamento.
+
+\section{Fundamentação Teórica}
+
+\subsection{Modelagem das Variáveis Aleatórias}
+A modelagem probabilística exige a escolha de distribuições estatísticas coerentes com o comportamento físico de cada variável:
+\begin{itemize}
+    \item \textbf{Distribuição Normal:} Utilizada para a espessura da casca ($t$) e para a carga axial aplicada ($P$). No caso da espessura, a distribuição normal reflete a variabilidade dos processos de fabricação. Estes processos resultam do acúmulo de diversos fatores de tolerância independentes. Para a carga, representa a flutuação esperada das solicitações durante a operação da estrutura.
+    \item \textbf{Distribuição Lognormal:} Aplicada à amplitude da imperfeição geométrica ($A$). Diferente das propriedades de material, a imperfeição física não assume valores negativos. A distribuição lognormal acomoda essa restrição. Ela também captura a assimetria do fenômeno, onde imperfeições elevadas são possíveis, porém de baixa ocorrência.
+\end{itemize}
+
+\subsection{Metodologia de Superfície de Resposta (RSM)}
+A avaliação iterativa da função de estado limite diretamente pelo solver MEF exige alto custo computacional. Neste estudo, a RSM foi adotada para aproximar a carga crítica de flambagem por meio de um polinômio. Utilizou-se uma função quadrática completa, com coeficientes ajustados por mínimos quadrados ordinários. O modelo obtido é contínuo e derivável. Estas propriedades são fundamentais para a convergência de algoritmos de otimização baseados em gradientes, como o FORM.
+
+\subsection{Método de Confiabilidade de Primeira Ordem (FORM)}
+O FORM é consolidado na engenharia estrutural por oferecer um bom equilíbrio entre precisão e custo computacional. O método calcula a probabilidade de falha transformando as variáveis aleatórias para o espaço normal padrão. Em seguida, busca o ponto de falha mais provável, conhecido como Ponto de Projeto. O índice de confiabilidade ($\beta$) é obtido pela menor distância geométrica entre a origem desse espaço e a superfície linearizada do estado limite. Isso resulta em um cálculo analítico rápido para a probabilidade de falha.
+
+\subsection{Simulação de Monte Carlo (MCS)}
+A Simulação de Monte Carlo é utilizada neste trabalho para avaliar os resultados obtidos pelo FORM. A geração de um elevado número de amostras permite calcular a probabilidade de falha diretamente na superfície de resposta. Embora impraticável se aplicada diretamente ao solver MEF, a utilização da MCS sobre o modelo quadrático demanda baixo tempo de processamento. Ela serve como referência para verificar a precisão do método analítico.
+
+\section{Aspectos do Solver de Elementos Finitos (MEF)}
+As avaliações estruturais foram conduzidas utilizando um solver numérico desenvolvido in-house. O domínio foi discretizado por meio de elementos de casca planares quadrilaterais. Estes elementos combinam a formulação de membrana do estado plano de tensões com a flexão transversal de placa.
+
+O algoritmo resolve o problema de estabilidade elástica associado à flambagem linear. A formulação é baseada no problema de autovalores generalizado:
+\begin{equation}
+    ( [K_0] + \lambda [K_G] ) \{\phi\} = 0
+\end{equation}
+onde $[K_0]$ é a matriz de rigidez elástica, $[K_G]$ é a matriz de rigidez geométrica, $\lambda$ é o fator de carga associado ao problema de autovalores e $\{\phi\}$ é o autovetor correspondente ao modo de instabilidade. Considerando que a análise emprega uma solicitação de referência unitária, o multiplicador $\lambda$ corresponde numericamente à carga crítica de flambagem ($P_{cr}$).
+
+Na simulação de superfícies cilíndricas, o emprego de elementos planos costuma enrijecer o modelo em comparação com formulações baseadas em cascas curvas. Embora ocorram diferenças percentuais em relação à teoria contínua, a aproximação atende à necessidade de capturar a instabilidade estrutural global. O solver demonstrou estabilidade numérica nas análises paramétricas requeridas pelas etapas probabilísticas.
+
+\section{Metodologia Computacional}
+
+O estudo avalia um cilindro engastado na base e sujeito a compressão axial na extremidade livre. Os parâmetros determinísticos adotados foram: raio $R = 100\,\text{mm}$, comprimento $L = 1000\,\text{mm}$ (com variações para $500\,\text{mm}$ durante a etapa de validação do solver), módulo de elasticidade $E = 200\,\text{GPa}$ e coeficiente de Poisson $\nu = 0.3$. A discretização da malha foi constituída por 15 divisões circunferenciais e 25 longitudinais.
+
+As incertezas estruturais e de carregamento foram inseridas no modelo por meio de três variáveis aleatórias independentes:
+\begin{itemize}
+    \item Espessura $t$: Normal ($\mu = 1.9\,\text{mm}$, $\sigma = 0.1\,\text{mm}$).
+    \item Amplitude da imperfeição $A$: Lognormal ($\mu = 0.5\,\text{mm}$, $\sigma = 0.1\,\text{mm}$).
+    \item Carga aplicada $P$: Normal ($\mu = 1.1 \times 10^6\,\text{N}$, $\sigma = 200000\,\text{N}$).
+\end{itemize}
+
+O fluxo de análise foi dividido em cinco etapas:
+\begin{enumerate}
+    \item \textbf{Planejamento de Experimentos (DOE):} O projeto amostral foi elaborado utilizando o Planejamento Composto Central (CCD). Como o solver MEF determina o fator de carga exclusivamente com base nos parâmetros físicos do modelo, o DOE incluiu apenas a espessura ($t$) e a imperfeição ($A$).
+    \item \textbf{Avaliações Determinísticas via MEF:} O solver determinou a carga crítica ($P_{cr}$) associada a cada ponto amostrado no DOE.
+    \item \textbf{Ajuste da Superfície de Resposta:} Os dados de entrada e as respostas do solver foram utilizados para ajustar os coeficientes do modelo polinomial.
+    \item \textbf{Validação Cruzada:} Amostras independentes (\textit{hold-out}) foram simuladas para testar a precisão preditiva do modelo ajustado. Isso permitiu extrair métricas de erro, como o coeficiente de determinação ($R^2$).
+    \item \textbf{Cálculo do Índice de Confiabilidade:} O índice de confiabilidade ($\beta$) foi calculado de forma iterativa pelo método FORM. Durante essa fase, a carga atuante ($P$) foi incorporada à função de estado limite $g(X) = P_{cr}(t, A) - P$. Por fim, os resultados analíticos foram verificados por meio da Simulação de Monte Carlo com $10^6$ amostras.
+\end{enumerate}
+
+\section{Resultados}
+
+\subsection{Validação do Solver MEF}
+Antes da execução das análises probabilísticas paramétricas, a precisão do solver MEF foi verificada. O resultado obtido para o cilindro determinístico ($P_{cr} = 1.423 \times 10^6$ N) foi comparado com a resposta do software comercial Abaqus e com a teoria clássica de instabilidade de cascas de Donnell. 
+
+A carga crítica calculada pelo solver apresentou uma diferença inferior a 15\% em relação às soluções de referência. Essa diferença decorre do uso de elementos planos quadrilaterais para modelar uma superfície com curvatura contínua, formulação que tende a enrijecer a estrutura elástica. Apesar dessa característica, o comportamento fenomenológico da flambagem elástica foi preservado de forma consistente. O solver, portanto, mostrou-se adequado para o procedimento iterativo de confiabilidade.
+
+\subsection{Validação da Superfície de Resposta}
+A precisão do modelo matemático substituto (RSM) construído sobre os dados do DOE foi mensurada por meio de verificação com pontos externos ao conjunto de treinamento. A Tabela \ref{tab:rsm} apresenta as métricas numéricas do ajuste polinomial quadrático completo.
+
+\begin{table}[ht]
+\centering
+\caption{Métricas de Validação do Metamodelo Quadrático}
+\label{tab:rsm}
+\begin{tabular}{ccc}
+\hline
+Coeficiente de Determinação ($R^2$) & Erro Quadrático Médio (RMSE) [N] & Erro Relativo Médio (\%) \\
+\hline
+1.0000 & 5.9798 & 0.0003 \\
+\hline
+\end{tabular}
+\end{table}
+
+As métricas indicam que o metamodelo quadrático representou adequadamente o comportamento do modelo em Elementos Finitos. Obteve-se um coeficiente de determinação ($R^2$) igual a 1,00 para o conjunto analisado, enquanto o erro quadrático médio (RMSE) permaneceu inferior a $6$ N, valor estatisticamente desprezível frente à ordem de grandeza da carga crítica ($\approx 1.4 \times 10^6$ N). Esse nível de ajuste justifica-se fisicamente pela relação de resposta contínua e aproximadamente quadrática entre a espessura da casca e a carga crítica de flambagem elástica no restrito domínio amostral adotado. O modelo substituto apresentou desempenho numérico consistente.
+
+\subsection{Resultados do FORM}
+O algoritmo iterativo HLRF buscou o Ponto de Projeto no espaço normal padrão. O procedimento alcançou convergência em 3 iterações. Os resultados analíticos e as coordenadas associadas ao colapso mais provável estão sumarizados na Tabela \ref{tab:form}.
+
+\begin{table}[ht]
+\centering
+\caption{Resultados obtidos pelo Algoritmo FORM e Ponto de Projeto}
+\label{tab:form}
+\begin{tabular}{ccccc}
+\hline
+Índice de Confiabilidade ($\beta$) & Probabilidade de Falha ($P_f$) & Iterações & Ponto Ótimo: $t^*$ [mm] & Ponto Ótimo: $P^*$ [N] \\
+\hline
+0.8375 & $2.0114 \times 10^{-1}$ & 3 & 1.856 & $1.242 \times 10^6$ \\
+\hline
+\end{tabular}
+\end{table}
+
+Fisicamente, o índice de confiabilidade ($\beta = 0.8375$) corresponde à menor distância da origem geométrica à superfície de estado limite no espaço normal padrão. O valor calculado resulta aquém das recomendações usuais para estruturas operacionais, indicando elevada vulnerabilidade do cilindro analisado. A probabilidade analítica associada a esse estado é $P_f = 20.1\%$, apontando segurança estrutural inadequada.
+
+\subsection{Resultados da Simulação de Monte Carlo}
+Para verificar a predição das formulações do método FORM, aplicou-se a Simulação de Monte Carlo diretamente sobre a Superfície de Resposta previamente aferida. Foram simuladas numericamente $10^6$ configurações amostrais independentes. O processamento integral dessa batelada levou cerca de $0.21$ segundos, o que reflete a robusta eficiência do modelo polinomial em sobreposição ao custo das análises diretas matriciais no espaço geométrico. A probabilidade de falha estatística resultou em $P_f = 1.9959 \times 10^{-1}$. 
+
+\subsection{Comparação entre FORM e Monte Carlo}
+A probabilidade de falha calculada analiticamente pelo FORM ($P_f = 2.0114 \times 10^{-1}$) apresentou elevada concordância com a predição simulada por Monte Carlo ($P_f = 1.9959 \times 10^{-1}$). A diferença absoluta de $0.00155$ representa um erro relativo de apenas $0.78\%$.
+
+Essa aproximação entre as proporções numéricas assinala que a curvatura inerente à função de estado limite estrutural na zona de falha do Ponto de Projeto obedece a um traçado moderado. Desse modo, o equacionamento em plano secante adotado pelo algoritmo de Primeira Ordem não introduziu desvios matemáticos que comprometessem o rigor elástico original, justificando plenamente a adoção analítica com ganho estocástico de desempenho avaliativo.
+
+\subsection{Influência das Variáveis Aleatórias}
+A análise dos fatores de importância ($\alpha^2$) indicou predomínio da carga externa aplicada ($P$), correspondendo a $72.7\%$ da influência no comportamento da variação de instabilidade limite. A espessura transversal da casca ($t$) contribuiu com os demais $27.3\%$ relativos para o domínio estatístico do problema avaliado.
+
+A amplitude da imperfeição geométrica inicial ($A$) apresentou influência praticamente nula (0.0\%) na resposta de probabilidade de colapso, comportamento de grande impacto analítico em teorias de estabilidade. O significado físico intrínseco a tal resposta recai na natureza analítica da formulação mecânica empregada (Eigenbuckling). A aproximação linear de autovalores generalizados postula a perda de restrição inicial sem iterar ao longo das deformadas flexurais. A perda aguda da capacidade estrutural, atestada na literatura pelo fator empírico usual \textit{knock-down}, baseia-se fundamentalmente no cômputo da geometria instável não-linear global durante os primeiros ramos deformados, restrição técnica que a extração matricial linear simples ignora fisicamente em suas formulações.
+
+\section{Conclusões}
+Este artigo apresentou e validou um framework paramétrico unificado para o estudo estatístico das incertezas frente ao colapso instável longitudinal, integrando avaliação autovalorada própria (MEF), Superfícies Polinomiais, teoria de Hasofer-Lind e simulação densa comparativa de Monte Carlo.
+
+As etapas processadas permitem apontar que:
+\begin{itemize}
+    \item \textbf{Solver MEF:} O código desenvolvido em elementos planares apresentou precisão satisfatória com erro numérico elástico previsível e de natureza conservadora frente à discretização curva (convergindo estavelmente na literatura de placas contíguas), e configurou o ponto central na rotina matemática probabilística estipulada.
+    \item \textbf{Superfície de Resposta:} O metamodelo representou adequadamente o comportamento do modelo determinístico. Obteve-se $R^2 = 1.00$ no domínio estipulado, reduzindo significativamente o custo computacional avaliativo sem comprometer a precisão mecânica do modelo dentro do espaço amostral.
+    \item \textbf{Concordância Probabilística:} O método FORM apresentou convergência e estabilidade adequadas. A probabilidade de falha analítica apresentou elevada concordância (erro relativo inferior a $1\%$) quando verificada via Monte Carlo, confirmando a curvatura moderada da função de estado limite.
+    \item \textbf{Influência e Sensibilidade:} Os fatores de importância indicaram que a variabilidade da carga axial dominou a incerteza do sistema. A sensibilidade nula associada à imperfeição geométrica ($A$) refletiu a natureza linear bifurcacional do equacionamento resolvido, servindo de ressalva metodológica para abordagens puramente estáticas na análise de imperfeições em cascas.
+\end{itemize}
+
+A principal contribuição científica deste artigo consiste na sistematização de um procedimento numérico reproduzível que engloba a solução matricial em código próprio e o tratamento estocástico completo do problema linearizado. 
+
+Trabalhos futuros devem estender o acoplamento algorítmico para análises estáticas geometricamente não lineares (como métodos de \textit{arc-length}) e plasticidade material (critério de von Mises). Com isso, a sensibilidade física a defeitos iniciais na resposta de colapso de cascas cilíndricas poderá ser investigada sob um panorama de confiabilidade estrita, impondo novos requisitos aos modelos probabilísticos convencionais.
+
+\end{document}

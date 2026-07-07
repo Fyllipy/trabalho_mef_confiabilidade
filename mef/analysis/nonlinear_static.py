@@ -5,6 +5,8 @@ from mef.model.shell_model import ShellModel
 from shared.results import ShellResults
 from mef.assembly.boundary_conditions import apply_boundary_conditions_penalty
 from mef.analysis.nonlinear_assembly import assemble_tangent_stiffness, update_internal_forces_and_stresses
+from mef.assembly.global_assembly import compute_all_element_gauss_variables
+from mef.postprocess.postprocessor import postprocess_results
 
 def solve_nonlinear_static(model: ShellModel, num_steps: int = 10, max_iter: int = 20, tol: float = 1e-4) -> ShellResults:
     """
@@ -127,9 +129,14 @@ def solve_nonlinear_static(model: ShellModel, num_steps: int = 10, max_iter: int
         res.stresses["load_factors"].append(lambda_factor)
         res.stresses["max_displacements"].append(max_disp_Z)
         
-    res.displacements = U_total.reshape(-1, dof)[:, 0:3]
-    res.rotations = U_total.reshape(-1, dof)[:, 3:6] if dof >= 6 else None
-    res.raw_dofs = U_total
+    # Pós-processamento do estado final convergido
+    gp_results, element_areas = compute_all_element_gauss_variables(nodes_0, elements, U_total, E, nu, h)
+    final_res = postprocess_results(model, U_total, gp_results, element_areas)
+    
+    # Copiar dados de histórico do objeto temporário res
+    final_res.metadata["load_factors"] = res._fallback_data.get("stresses", {}).get("load_factors", [])
+    final_res.metadata["max_displacements"] = res._fallback_data.get("stresses", {}).get("max_displacements", [])
+    final_res.raw_dofs = U_total
     
     print("Análise NLGEOM finalizada.")
-    return res
+    return final_res

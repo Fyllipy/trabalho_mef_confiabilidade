@@ -4,8 +4,8 @@ from typing import Tuple
 
 from mef.elements.stiffness import compute_element_stiffness_local
 from mef.elements.geometric_stiffness import compute_geometric_stiffness_local
-from mef.materials.constitutive import compute_membrane_matrix
-from mef.elements.B_matrix import compute_B_membrane
+from mef.materials.constitutive import compute_membrane_matrix, compute_bending_matrix
+from mef.elements.B_matrix import compute_B_membrane, compute_B_bending
 from mef.formulation.jacobian import compute_jacobian
 from mef.elements.base_element import ShellElement
 from mef.elements.quad4 import Quad4
@@ -211,3 +211,116 @@ def assemble_geometric_stiffness(
                     
     Kg_global = sp.coo_matrix((V, (I, J)), shape=(total_dofs, total_dofs)).tocsc()
     return Kg_global
+
+def compute_all_element_gauss_variables(
+    nodes: np.ndarray,
+    elements: np.ndarray,
+    U_global: np.ndarray,
+    E: float,
+    nu: float,
+    h: float
+) -> Tuple[Dict[str, np.ndarray], np.ndarray]:
+    """
+    Loop over elements to compute all physical variables at the Gauss points:
+    stresses (top, bottom, mid), strains (top, bottom), internal forces and moments,
+    and the area of each element.
+    """
+    num_elements = len(elements)
+    nodes_per_elem = elements.shape[1]
+    element = get_element_instance(nodes_per_elem)
+    gps = element.get_membrane_bending_integration_points()
+    num_gp = len(gps)
+    
+    Dm = compute_membrane_matrix(E, nu, h)
+    Db = compute_bending_matrix(E, nu, h)
+    
+    # Initialize component dictionaries
+    stresses_top = np.zeros((num_elements, num_gp, 3))
+    stresses_bottom = np.zeros((num_elements, num_gp, 3))
+    stresses_mid = np.zeros((num_elements, num_gp, 3))
+    mises_max = np.zeros((num_elements, num_gp, 1))
+    
+    strains_top = np.zeros((num_elements, num_gp, 3))
+    strains_bottom = np.zeros((num_elements, num_gp, 3))
+    
+    internal_forces = np.zeros((num_elements, num_gp, 6))
+    element_areas = np.zeros(num_elements)
+    
+    ndof = element.num_nodes * element.dofs_per_node
+    
+    for e in range(num_elements):
+        elem_nodes = elements[e]
+        elem_coords = nodes[elem_nodes]
+        R, T, local_coords = compute_element_transformation(element, elem_coords)
+        
+        gdl_indices = np.zeros(ndof, dtype=int)
+        for i in range(element.num_nodes):
+            node_id = elem_nodes[i]
+            dof = element.dofs_per_node
+            gdl_indices[i*dof : i*dof+dof] = np.arange(node_id*dof, node_id*dof+dof)
+            
+        u_global_elem = U_global[gdl_indices]
+        u_local_elem = T @ u_global_elem
+        
+        area_accum = 0.0
+        
+        for g_idx, gp in enumerate(gps):
+            xi, eta, w = gp
+            dN_dxi_eta = element.shape_function_derivatives(xi, eta)
+            J, detJ, dN_dx_y = compute_jacobian(dN_dxi_eta, local_coords)
+            
+            # w * detJ is the differential area
+            dA = detJ * w
+            area_accum += dA
+            
+            Bm = compute_B_membrane(element, dN_dx_y)
+            Bb = compute_B_bending(element, dN_dx_y)
+            
+            # Kinematics
+            strain_m = Bm @ u_local_elem
+            strain_b = Bb @ u_local_elem
+            
+            # Constitutive relationships
+            N_force = Dm @ strain_m
+            M_moment = Db @ strain_b
+            
+            # Stresses
+            stress_m = N_force / h
+            stress_b = 6.0 * M_moment / (h**2)
+            
+            s_top = stress_m + stress_b
+            s_bottom = stress_m - stress_b
+            s_mid = stress_m
+            
+            stresses_top[e, g_idx, :] = s_top
+            stresses_bottom[e, g_idx, :] = s_bottom
+            stresses_mid[e, g_idx, :] = s_mid
+            
+            # von Mises stresses
+            mises_t = np.sqrt(s_top[0]**2 + s_top[1]**2 - s_top[0]*s_top[1] + 3.0*s_top[2]**2)
+            mises_b = np.sqrt(s_bottom[0]**2 + s_bottom[1]**2 - s_bottom[0]*s_bottom[1] + 3.0*s_bottom[2]**2)
+            mises_m = np.sqrt(s_mid[0]**2 + s_mid[1]**2 - s_mid[0]*s_mid[1] + 3.0*s_mid[2]**2)
+            
+            mises_max[e, g_idx, 0] = max(mises_t, mises_b, mises_m)
+            
+            # Strains
+            strains_top[e, g_idx, :] = strain_m + 0.5 * h * strain_b
+            strains_bottom[e, g_idx, :] = strain_m - 0.5 * h * strain_b
+            
+            # Forces and moments [Nx, Ny, Nxy, Mx, My, Mxy]
+            internal_forces[e, g_idx, 0:3] = N_force
+            internal_forces[e, g_idx, 3:6] = M_moment
+            
+        element_areas[e] = area_accum
+        
+    gp_results = {
+        "stresses_top": stresses_top,
+        "stresses_bottom": stresses_bottom,
+        "stresses_mid": stresses_mid,
+        "mises_max": mises_max,
+        "strains_top": strains_top,
+        "strains_bottom": strains_bottom,
+        "internal_forces": internal_forces
+    }
+    
+    return gp_results, element_areas

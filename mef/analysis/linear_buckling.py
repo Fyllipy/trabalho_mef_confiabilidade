@@ -113,8 +113,42 @@ def solve_linear_buckling(model: ShellModel, num_modes: int = 1) -> ShellResults
         first_mode = first_mode / max_disp
     
     res = ShellResults()
-    res.displacements = first_mode.reshape(-1, 6)[:, 0:3]
-    res.rotations = first_mode.reshape(-1, 6)[:, 3:6]
+    res.metadata = {
+        "element_type": model.element_type,
+        "integration_order": "3x3" if elements.shape[1] == 8 else "2x2",
+        "num_gauss_points": 9 if elements.shape[1] == 8 else 4,
+        "results_location": model.results_location
+    }
+    
+    u_nodal = first_mode.reshape(-1, 6)[:, 0:3]
+    u_rot = first_mode.reshape(-1, 6)[:, 3:6]
+    
+    res.data["nodal"] = {
+        "displacements": u_nodal,
+        "rotations": u_rot
+    }
+    
+    # Interpolar deslocamentos do modo para pontos de Gauss
+    from mef.assembly.global_assembly import get_element_instance
+    nodes_per_elem = elements.shape[1]
+    element = get_element_instance(nodes_per_elem)
+    gps = element.get_membrane_bending_integration_points()
+    num_elements = len(elements)
+    num_gp = len(gps)
+    
+    gp_displacements = np.zeros((num_elements, num_gp, 3))
+    for e in range(num_elements):
+        elem_nodes = elements[e]
+        elem_disp = u_nodal[elem_nodes]
+        for g_idx, gp in enumerate(gps):
+            xi, eta, _ = gp
+            N = element.shape_functions(xi, eta)
+            gp_displacements[e, g_idx, :] = N @ elem_disp
+            
+    res.data["gauss"] = {
+        "displacements": gp_displacements
+    }
+    
     res.critical_load = lambdas[0]
     res.raw_dofs = first_mode
     

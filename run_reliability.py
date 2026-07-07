@@ -62,7 +62,7 @@ def run_reliability_analysis():
         geometry_params={"radius": 100.0, "length": 1000.0, "thickness": 2.0},
         material_params={"E": 200e3, "nu": 0.3},
         element_type="QUAD4",
-        mesh_params={"num_circumferential": 12, "num_longitudinal": 20},
+        mesh_params={"num_circumferential": 15, "num_longitudinal": 25},
         analysis_type="linear_buckling"
     )
     raw_mesh = generate_mesh(base_model)

@@ -5,7 +5,7 @@ from mef.mesh.converter import convert_mesh
 from mef.analysis.linear_static import solve_linear_static
 from mef.analysis.linear_buckling import solve_linear_buckling
 from mef.analysis.nonlinear_static import solve_nonlinear_static
-from mef.postprocess.vtk_export import export_vtk
+from mef.postprocess.vtk_export import export_results_vtk
 
 def solve_shell(model: ShellModel) -> ShellResults:
     """
@@ -61,38 +61,23 @@ def solve_shell(model: ShellModel) -> ShellResults:
         
         # Etapa 13: Exportação VTK
         if results.displacements is not None:
-            point_data = {
-                "Deslocamentos": results.displacements,
-                "Rotacoes": results.rotations
-            }
             vtk_name = f"resultados_{model.geometry_type}_estatica.vtu"
-            export_vtk(vtk_name, nodes, elements, point_data)
-            results.vtk_file = vtk_name
+            export_results_vtk(vtk_name, model, results)
             
     elif model.analysis_type == "linear_buckling":
         results = solve_linear_buckling(model)
         
         # Etapa 13: Exportação VTK do Modo de Flambagem
         if results.displacements is not None:
-            point_data = {
-                "Modo_Flambagem": results.displacements,
-                "Rotacoes": results.rotations
-            }
             vtk_name = f"resultados_{model.geometry_type}_buckling.vtu"
-            export_vtk(vtk_name, nodes, elements, point_data)
-            results.vtk_file = vtk_name
+            export_results_vtk(vtk_name, model, results)
             
     elif model.analysis_type == "nonlinear_static":
         results = solve_nonlinear_static(model, num_steps=10, max_iter=20, tol=1e-3)
         
         if results.displacements is not None:
-            point_data = {
-                "Deslocamentos_Finais": results.displacements,
-                "Rotacoes_Finais": results.rotations
-            }
             vtk_name = f"resultados_{model.geometry_type}_nlgeom.vtu"
-            export_vtk(vtk_name, nodes, elements, point_data)
-            results.vtk_file = vtk_name
+            export_results_vtk(vtk_name, model, results)
             
     else:
         print(f"Análise {model.analysis_type} ainda não implementada.")

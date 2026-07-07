@@ -4,8 +4,9 @@ from typing import List, Tuple
 
 from mef.model.shell_model import ShellModel
 from shared.results import ShellResults
-from mef.assembly.global_assembly import assemble_global_stiffness
+from mef.assembly.global_assembly import assemble_global_stiffness, compute_all_element_gauss_variables
 from mef.assembly.boundary_conditions import apply_boundary_conditions_penalty
+from mef.postprocess.postprocessor import postprocess_results
 
 def solve_linear_static(model: ShellModel) -> ShellResults:
     """
@@ -72,11 +73,9 @@ def solve_linear_static(model: ShellModel) -> ShellResults:
     
     print("Análise estática concluída com sucesso.")
     
-    # 6. Agrupamento dos resultados
-    res = ShellResults()
-    # Para fins organizacionais, reshape o vetor de (N*6,) para (N, 6)
-    res.displacements = U_global.reshape(-1, 6)[:, 0:3]
-    res.rotations = U_global.reshape(-1, 6)[:, 3:6]
+    # 6. Agrupamento e pós-processamento dos resultados
+    gp_results, element_areas = compute_all_element_gauss_variables(nodes, elements, U_global, E, nu, h)
+    res = postprocess_results(model, U_global, gp_results, element_areas)
     res.raw_dofs = U_global
     
     return res
